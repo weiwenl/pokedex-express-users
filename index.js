@@ -1,7 +1,7 @@
 /**
  * To-do for homework on 28 Jun 2018
  * =================================
- * 1. Create the relevant tables.sql file
+ * 1. Create the relevant tables.sql file 
  * 2. New routes for user-creation
  * 3. Change the pokemon form to add an input for user id such that the pokemon belongs to the user with that id
  * 4. (FURTHER) Add a drop-down menu of all users on the pokemon form
