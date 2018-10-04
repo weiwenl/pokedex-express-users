@@ -1,7 +1,7 @@
 /**
  * To-do for homework on 28 Jun 2018
  * =================================
- * 1. Create the relevant tables.sql file 
+ * 1. Create the relevant tables.sql file
  * 2. New routes for user-creation
  * 3. Change the pokemon form to add an input for user id such that the pokemon belongs to the user with that id
  * 4. (FURTHER) Add a drop-down menu of all users on the pokemon form
@@ -95,8 +95,8 @@ const getPokemon = (request, response) => {
 const postPokemon = (request, response) => {
   let params = request.body;
 
-  const queryString = 'INSERT INTO pokemon(name, height) VALUES($1, $2);';
-  const values = [params.name, params.height];
+  const queryString = 'INSERT INTO pokemon(name, img, height, weight) VALUES($1, $2, $3, $4);';
+  const values = [params.name, params.img, params.height, params.weight];
 
   pool.query(queryString, values, (err, result) => {
     if (err) {
@@ -180,10 +180,53 @@ const userCreate = (request, response) => {
       console.log('Query result:', result);
 
       // redirect to home page
-      response.redirect('/');
+      response.redirect('/'); //render page to show new users later**
     }
   });
 }
+
+/**
+ * ===================================
+ * Catch Pokemons
+ * ===================================
+ */
+ const catchPokemon = (request, response) => {
+   response.render('catch/new');
+ }
+
+ const savePokemon = (request, response) => {
+
+   const queryString = 'INSERT INTO users_pokemon (users_id, pokemon_id) VALUES ($1,$2);'
+   console.log(request.body.userId);
+   const values = [request.body.userid, request.body.pokemonid];
+
+   pool.query(queryString, values, (err, result) => {
+     if (err) {
+       console.error('Query error:', err.stack);
+       response.status(500).send('Server down');
+     } else {
+       console.log('Query result:', result);
+
+       response.redirect('/'); //render page to show new added pokemon later**
+     }
+   });
+ };
+
+ const showPokemon = (request, response) => {
+   let userIdentity = request.params.id;
+   const queryString = `SELECT users_pokemon.pokemon_id, pokemon.name FROM pokemon INNER JOIN users_pokemon ON (users_pokemon.pokemon_id = pokemon.id) WHERE users_id = ${userIdentity};`
+
+   pool.query(queryString, (err, result) => {
+     if(err) {
+      console.log('Query error', err.stack);
+      response.status(500).send('Server down');
+    } else {
+      response.send(result.rows);
+      //response.render('users/collectpokemon')
+    }
+   });
+
+ };
 
 /**
  * ===================================
@@ -208,6 +251,11 @@ app.delete('/pokemon/:id', deletePokemon);
 
 app.get('/users/new', userNew);
 app.post('/users', userCreate);
+
+// What pokemon has the user catch
+app.get('/catch/new', catchPokemon);
+app.post('/catch', savePokemon);
+app.get('/show/users/:id', showPokemon);
 
 /**
  * ===================================
